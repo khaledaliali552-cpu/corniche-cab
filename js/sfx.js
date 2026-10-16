@@ -1,6 +1,5 @@
 import { PLAYLIST } from './data.js';
 
-// فئة المؤثرات الصوتية الأصلية للمحرك والكلاكس
 export class Audio {
   constructor() {
     this.enabled = true;
@@ -18,7 +17,6 @@ export class Audio {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
-    
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sawtooth';
@@ -35,7 +33,6 @@ export class Audio {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
-
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
@@ -53,7 +50,6 @@ export class Audio {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
-
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sine';
@@ -68,9 +64,7 @@ export class Audio {
   }
 }
 
-// مشغل الكاسيت وأغاني المهرجانات
 let currentTrack = 0;
-
 export function initCassette() {
   const audioPlayer = document.getElementById('audio-player');
   const musicTitle = document.getElementById('music-title');
