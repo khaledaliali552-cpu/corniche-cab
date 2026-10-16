@@ -44,11 +44,10 @@ export class Car {
     }
   }
 
-  update(dt, world) {
+  update(dt) {
     let throttle = 0;
     let steer = 0;
 
-    // قراءة أزرار الكيبورد
     if (this.input) {
       if (this.input.isDown('ArrowUp') || this.input.isDown('KeyW')) throttle += 1;
       if (this.input.isDown('ArrowDown') || this.input.isDown('KeyS')) throttle -= 1.2;
@@ -57,18 +56,15 @@ export class Car {
       if (this.input.isDown('KeyH') && this.audio) this.audio.playHorn();
     }
 
-    // تسارع وفرامل
     if (throttle > 0) {
       this.speed = Math.min(this.speed + this.accel * dt, this.maxSpeed);
     } else if (throttle < 0) {
       this.speed = Math.max(this.speed - this.brakeForce * dt, -8);
     } else {
-      // تباطؤ طبيعي
       if (this.speed > 0) this.speed = Math.max(0, this.speed - 8 * dt);
       else if (this.speed < 0) this.speed = Math.min(0, this.speed + 8 * dt);
     }
 
-    // دوران وحركة
     if (Math.abs(this.speed) > 0.1) {
       this.pos.x += steer * this.turnSpeed * dt * (this.speed / this.maxSpeed);
       this.pos.x = clamp(this.pos.x, -5.5, 5.5);
@@ -81,9 +77,4 @@ export class Car {
       this.mesh.rotation.y = steer * 0.15;
     }
   }
-}
-
-// تصدير بديل كاحتياط
-export function createCar(scene, input, audio) {
-  return new Car(scene, input, audio);
 }
