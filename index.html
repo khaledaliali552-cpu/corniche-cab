@@ -4,9 +4,90 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b1226">
-  <meta name="description" content="أجرة الكورنيش: لعبة سواقة تاكسى 3D بتتلعب من المتصفح. وصّل الركاب، اكسب فلوس، واشترى عربيتك.">
-  <title>أجرة الكورنيش</title>
+  <meta name="description" content="أجرة الكورنيش: لعبة سواقة إسكندرانية ثلاثية الأبعاد. وصّل ركاب، اختار طريقك، اكسب فلوس، واشترى عربياتك وألوانها.">
+  <title>أجرة الكورنيش - النسخة الإسكندرانية</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .route-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: right;
+    }
+    .route-card:hover, .route-card.selected {
+      background: rgba(255, 204, 0, 0.15);
+      border-color: #ffcc00;
+      transform: scale(1.01);
+    }
+    .route-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.05rem;
+    }
+    .route-price {
+      background: #27ae60;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    .route-stops {
+      font-size: 0.82rem;
+      color: #bbb;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .bubble-talk {
+      background: #fffbe6;
+      color: #111;
+      border-radius: 16px;
+      padding: 10px 14px;
+      font-weight: bold;
+      border: 2px solid #e6b800;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      max-width: 90%;
+      text-align: center;
+      pointer-events: none;
+    }
+    .cassette-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 10px;
+      border-radius: 30px;
+      border: 1px solid #444;
+      font-size: 0.82rem;
+    }
+    .color-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .color-swatch {
+      height: 45px;
+      border-radius: 8px;
+      border: 2px solid #555;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <canvas id="gl"></canvas>
@@ -14,9 +95,19 @@
   <!-- ========== HUD ========== -->
   <div id="hud" class="hidden">
     <div class="hud-top">
-      <div class="pill" id="hud-money">💰 <b>0</b></div>
+      <div class="pill" id="hud-money">💰 <b>0</b> ج.م</div>
+      <div class="pill" id="hud-route-tag">📍 طريق الجيش</div>
       <div class="pill" id="hud-timer">⏱ <b>6:00</b></div>
-      <div class="pill small" id="hud-day">يوم 1</div>
+      
+      <!-- كاسيت الأغاني -->
+      <div class="cassette-box">
+        <span>📻</span>
+        <button id="btn-music-prev" class="icon-btn">⏮</button>
+        <button id="btn-music-toggle" class="icon-btn">▶</button>
+        <button id="btn-music-next" class="icon-btn">⏭</button>
+        <span id="music-title">كاسيت الأجرة</span>
+      </div>
+
       <button id="btn-pause" class="icon-btn" aria-label="إيقاف مؤقت">⏸</button>
     </div>
 
@@ -25,6 +116,9 @@
       <div class="bar"><i id="card-bar"></i></div>
       <div id="card-line" class="card-line"></div>
     </div>
+
+    <!-- فقاعة إيفيهات الزباين -->
+    <div id="passenger-bubble" class="bubble-talk hidden"></div>
 
     <div id="hint" class="hint hidden"></div>
 
@@ -38,7 +132,7 @@
 
   <div id="toasts"></div>
 
-  <!-- ========== أزرار اللمس ========== -->
+  <!-- ========== أزرار اللمس للموبايل ========== -->
   <div id="touch" class="hidden">
     <div class="t-left">
       <button id="t-left" class="tbtn" aria-label="شمال">◀</button>
@@ -56,92 +150,150 @@
     <div class="panel menu">
       <div class="logo">🚖</div>
       <h1>أجرة الكورنيش</h1>
-      <p class="sub">سواق تاكسى على الكورنيش. وصّل الركاب، اجمع فلوس، واشترى عربيتك.</p>
+      <p class="sub">سواقة وشقا إسكندراني.. حمّل ركابك من المحطة وكبّر أسطولك!</p>
       <div class="status" id="menu-status"></div>
-      <button class="btn primary" id="m-start">ابدأ الوردية</button>
+      
+      <button class="btn primary" id="m-start">اختر الخط وابدأ الوردية</button>
+      
       <div class="row">
-        <button class="btn" id="m-garage">🚗 الجراج</button>
+        <button class="btn" id="m-garage">🚗 الجراج والدهانات</button>
         <button class="btn" id="m-quests">🏆 المهام</button>
+        <button class="btn" id="m-share" style="background:#25D366; color:#fff;">📲 ادعو أصحابك واكسب</button>
+      </div>
+      <div class="row">
         <button class="btn" id="m-settings">⚙️ الإعدادات</button>
       </div>
-      <p class="foot">لعبة مستقلة بكود وتصميم أصلى · نسخة تجريبية</p>
+      <p class="foot">نسخة مطورة إسكندرانية · خفيفة وتعمل على الموبايل</p>
     </div>
   </section>
 
-  <!-- ========== الجراج ========== -->
+  <!-- ========== اختيار الخطوط والطرق ========== -->
+  <section id="screen-routes" class="screen hidden">
+    <div class="panel wide">
+      <div class="panel-head">
+        <h2>اختر خط السير (الطريق)</h2>
+      </div>
+      <p style="margin-bottom: 12px; color: #ccc;">كل خط وليه أجرته ومحطاته وزباينه:</p>
+      
+      <div id="routes-list">
+        <div class="route-card selected" data-route="geish">
+          <div class="route-header">
+            <span>🌊 طريق الجيش (طريق البحر - طريق البشاوات)</span>
+            <span class="route-price">150 ج.م / فرد</span>
+          </div>
+          <div class="route-stops">بحر وهوا نظيف وزباين بتدفع بسخاء وبقشيش عالي.</div>
+        </div>
+
+        <div class="route-card" data-route="abuqir">
+          <div class="route-header">
+            <span>🚊 طريق أبوقير</span>
+            <span class="route-price">70 ج.م / فرد</span>
+          </div>
+          <div class="route-stops"><b>المحطات:</b> قسم باب شرق · جمال عبد الناصر · الإبراهيمية واللاجيتيه · سبورتنج · مستشفى الطلبة · كليوباترا · سيدي جابر · رشدي · وينجت · فليمنج · باكوس · سيدي بشر · ميامي · خالد بن الوليد · المندرة · المنتزه · أبوقير.</div>
+        </div>
+
+        <div class="route-card" data-route="mahmoudia">
+          <div class="route-header">
+            <span>🏭 شريان المحمودية</span>
+            <span class="route-price">60 ج.م / فرد</span>
+          </div>
+          <div class="route-stops"><b>المحطات:</b> شارع محسن · شارع الرصافة · بوالينو · شارع العمدة · مستشفى النزهة · شارع الدريسة · شارع الزهور.</div>
+        </div>
+
+        <div class="route-card" data-route="highway">
+          <div class="route-header">
+            <span>⚡ الطريق السريع</span>
+            <span class="route-price">50 ج.م / فرد</span>
+          </div>
+          <div class="route-stops"><b>المحطات:</b> كارفور · الحديقة الدولية · محرم بك الجديدة. سرعات عالية ورادارات.</div>
+        </div>
+
+        <div class="route-card" data-route="desert">
+          <div class="route-header">
+            <span>🚚 طريق إسكندرية الصحراوي (طريق موظفين - رخيصة عشان غلابة)</span>
+            <span class="route-price">40 ج.م / فرد</span>
+          </div>
+          <div class="route-stops"><b>المحطات:</b> العامرية · عبد القادر · مرغم · شركات الشغل والمنطقة الحرة. زحمة وتريلات.</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 15px;">
+        <button class="btn primary" id="r-confirm">انطلق في الخط</button>
+        <button class="btn" id="r-back">رجوع</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== الجراج ودهان العربيات ========== -->
   <section id="screen-garage" class="screen hidden">
     <div class="panel wide">
       <div class="panel-head">
-        <h2>الجراج</h2>
-        <div class="pill" id="garage-money"></div>
+        <h2>الجراج وسوق العربيات والدهانات</h2>
+        <div class="pill" id="garage-money">💰 0 ج.م</div>
       </div>
+      
+      <h3>العربيات المتاحة</h3>
       <div id="garage-list" class="garage-list"></div>
+
+      <h3 style="margin-top: 20px;">دوكو ودهان العربية (200 ج.م)</h3>
+      <div class="color-picker-grid" id="color-palette">
+        <div class="color-swatch" style="background: #ffffff; color: #000;" data-color="0xffffff">أبيض تويوتا</div>
+        <div class="color-swatch" style="background: #111111; color: #fff;" data-color="0x111111">أسود ملكي</div>
+        <div class="color-swatch" style="background: #d63031; color: #fff;" data-color="0xd63031">أحمر ناري</div>
+        <div class="color-swatch" style="background: #0984e3; color: #fff;" data-color="0x0984e3">أزرق بحري</div>
+        <div class="color-swatch" style="background: #f1c40f; color: #000;" data-color="0xf1c40f">أصفر تاكسي</div>
+        <div class="color-swatch" style="background: #7f8c8d; color: #fff;" data-color="0x7f8c8d">رمادي توناية</div>
+      </div>
+
       <button class="btn" id="g-back">رجوع</button>
     </div>
   </section>
 
-  <!-- ========== المهام والإنجازات ========== -->
+  <!-- ========== دعوة الأصدقاء ========== -->
+  <section id="screen-share" class="screen hidden">
+    <div class="panel">
+      <h2>📲 ادعو أصحابك واكسب 500 جنيه!</h2>
+      <p>شارك الرابط مع صحابك على الواتساب، وأول ما تشارك هينزلك <b>500 جنيه</b> فوري في رصيدك لشراء وتعديل العربيات.</p>
+      <div style="background: rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin: 15px 0;">
+        كود الدعوة بتاعك: <b id="user-ref-code">ALEX-777</b>
+      </div>
+      <button class="btn primary" id="btn-send-whatsapp" style="background:#25D366; color:#fff;">مشاركة عبر WhatsApp 💬</button>
+      <button class="btn" id="share-back">رجوع</button>
+    </div>
+  </section>
+
+  <!-- ========== النوافذ الإضافية ========== -->
   <section id="screen-quests" class="screen hidden">
     <div class="panel wide">
       <div class="panel-head"><h2>مهام الوردية</h2></div>
       <div id="quest-list" class="list"></div>
-      <div class="panel-head"><h2>الإنجازات</h2></div>
-      <div id="ach-list" class="list"></div>
       <button class="btn" id="q-back">رجوع</button>
     </div>
   </section>
 
-  <!-- ========== الإعدادات ========== -->
   <section id="screen-settings" class="screen hidden">
     <div class="panel">
       <div class="panel-head"><h2>الإعدادات</h2></div>
-      <label class="set"><span>الصوت</span><input type="checkbox" id="s-sound"></label>
-      <label class="set"><span>الاهتزاز عند الخبط</span><input type="checkbox" id="s-vibrate"></label>
-      <label class="set"><span>بنزين أوتوماتيك (بدون ما تدوس)</span><input type="checkbox" id="s-auto"></label>
+      <label class="set"><span>صوت اللعبة</span><input type="checkbox" id="s-sound" checked></label>
+      <label class="set"><span>الاهتزاز عند الخبط</span><input type="checkbox" id="s-vibrate" checked></label>
       <label class="set"><span>حساسية الدريكسيون</span><input type="range" id="s-steer" min="0.6" max="1.5" step="0.05"></label>
-      <label class="set"><span>قوة الفرامل</span><input type="range" id="s-brake" min="0.6" max="1.4" step="0.05"></label>
       <button class="btn danger" id="s-reset">مسح التقدم والبدء من الأول</button>
       <button class="btn" id="s-back">رجوع</button>
     </div>
   </section>
 
-  <!-- ========== الشرح ========== -->
-  <section id="screen-tutorial" class="screen hidden">
-    <div class="panel">
-      <h2>إزاى تلعب</h2>
-      <ol class="howto">
-        <li>أنت سواق على تاكسى بتاع <b>المعلم</b>. فى آخر الوردية بتدفع له <b>الحساب</b> من اللى كسبته.</li>
-        <li>شوف الراكب اللى بيشاور (عمود النور الأصفر). <b>قرّب من الرصيف ووقّف</b> جنبه لحد ما يركب.</li>
-        <li>وصّله للمكان (العمود الأخضر) <b>قبل ما الوقت يخلص</b>، وسوق بنعومة عشان البقشيش.</li>
-        <li>خلى بالك من <b>الرادارات</b> وحدود السرعة، وابعد عن الخبط عشان العربية متتبهدلش.</li>
-        <li>اجمع فلوس واشترى <b>عربيتك</b> من الجراج.</li>
-      </ol>
-      <div class="keys">
-        <div><kbd>↑</kbd> / <kbd>W</kbd> بنزين</div>
-        <div><kbd>↓</kbd> / <kbd>S</kbd> / <kbd>مسافة</kbd> فرامل</div>
-        <div><kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> دريكسيون</div>
-        <div><kbd>H</kbd> كلاكس · <kbd>Esc</kbd> إيقاف</div>
-      </div>
-      <button class="btn primary" id="tu-go">يلا بينا</button>
-    </div>
-  </section>
-
-  <!-- ========== إيقاف مؤقت ========== -->
   <section id="screen-pause" class="screen hidden">
     <div class="panel">
       <h2>إيقاف مؤقت</h2>
       <button class="btn primary" id="p-resume">كمّل</button>
       <button class="btn" id="p-end">إنهاء الوردية وحساب اليوم</button>
-      <button class="btn" id="p-sound">الصوت</button>
     </div>
   </section>
 
-  <!-- ========== ملخص الوردية ========== -->
   <section id="screen-summary" class="screen hidden">
     <div class="panel wide">
       <h2 id="sum-title">الوردية خلصت</h2>
       <div id="sum-rows" class="sum-rows"></div>
-      <div id="sum-extra" class="list"></div>
       <div class="row">
         <button class="btn primary" id="su-next">وردية جديدة</button>
         <button class="btn" id="su-garage">🚗 الجراج</button>
@@ -150,7 +302,7 @@
     </div>
   </section>
 
-  <noscript><div class="panel noscript">فعّل جافاسكريبت عشان تلعب.</div></noscript>
+  <audio id="audio-player" preload="none"></audio>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
