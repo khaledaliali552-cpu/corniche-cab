@@ -5,7 +5,7 @@ import { Car } from './car.js';
 import { World } from './world.js';
 import { Traffic } from './traffic.js';
 import { Rides } from './rides.js';
-import { Audio } from './sfx.js';
+import { Audio, initCassette } from './sfx.js';
 import { Save } from './save.js';
 
 const canvas = document.getElementById('gl');
@@ -21,14 +21,17 @@ const car = new Car(scene, input, audio);
 const traffic = new Traffic(scene);
 const rides = new Rides(scene, car, audio, save);
 
+// تشغيل الكاسيت
+initCassette();
+
 const ui = setupUI({
   save,
   audio,
   rides,
   car,
   world,
-  onStartShift: () => {
-    rides.startShift();
+  onStartShift: (routeId) => {
+    rides.startShift(routeId);
     car.reset();
     traffic.reset();
   }
