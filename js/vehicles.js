@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three.module.min.js';
 
-export function createCarMesh(carId = 'taxi_shahin', colorHex = 0xffffff) {
+// الدالة الأساسية اللي اللعبة ومحرك car.js بيدوروا عليها
+export function buildVehicle(carId = 'taxi_132', colorHex = 0xffffff) {
   const group = new THREE.Group();
   const bodyMat = new THREE.MeshLambertMaterial({ color: colorHex });
   const darkMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
@@ -49,7 +50,7 @@ export function createCarMesh(carId = 'taxi_shahin', colorHex = 0xffffff) {
     box.position.set(0, 1.05, -1.0);
     group.add(box);
   } else {
-    // تاكسي شاهين
+    // تاكسي شاهين إسكندرية
     const body = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.75, 3.8), bodyMat);
     body.position.y = 0.65;
     group.add(body);
@@ -58,13 +59,12 @@ export function createCarMesh(carId = 'taxi_shahin', colorHex = 0xffffff) {
     top.position.set(0, 1.15, -0.2);
     group.add(top);
 
-    // فانوس تاكسي أصفر فوق
     const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.3), new THREE.MeshBasicMaterial({ color: 0xffcc00 }));
     lamp.position.set(0, 1.55, -0.2);
     group.add(lamp);
   }
 
-  // عجلات
+  // تركيب 4 عجلات للعربية
   const wheelGeom = new THREE.CylinderGeometry(0.35, 0.35, 0.25, 12);
   wheelGeom.rotateZ(Math.PI / 2);
   const wheels = [
@@ -80,3 +80,6 @@ export function createCarMesh(carId = 'taxi_shahin', colorHex = 0xffffff) {
 
   return group;
 }
+
+// تصدير دالة إضافية بنفس الاسم كاحتياط
+export const createCarMesh = buildVehicle;
