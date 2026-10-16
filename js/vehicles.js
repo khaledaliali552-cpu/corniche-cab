@@ -1,6 +1,5 @@
 import * as THREE from '../vendor/three.module.min.js';
 
-// الدالة الأساسية اللي اللعبة ومحرك car.js بيدوروا عليها
 export function buildVehicle(carId = 'taxi_132', colorHex = 0xffffff) {
   const group = new THREE.Group();
   const bodyMat = new THREE.MeshLambertMaterial({ color: colorHex });
@@ -64,7 +63,7 @@ export function buildVehicle(carId = 'taxi_132', colorHex = 0xffffff) {
     group.add(lamp);
   }
 
-  // تركيب 4 عجلات للعربية
+  // 4 عجلات
   const wheelGeom = new THREE.CylinderGeometry(0.35, 0.35, 0.25, 12);
   wheelGeom.rotateZ(Math.PI / 2);
   const wheels = [
@@ -80,6 +79,3 @@ export function buildVehicle(carId = 'taxi_132', colorHex = 0xffffff) {
 
   return group;
 }
-
-// تصدير دالة إضافية بنفس الاسم كاحتياط
-export const createCarMesh = buildVehicle;
