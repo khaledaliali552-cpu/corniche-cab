@@ -6,7 +6,89 @@ import { initCassette } from './sfx.js';
 export const gameState = {
   money: 0,
   day: 1,
-  shiftTime: 360, // 6 دقائق
+  shiftTime: 360, // 6 import * as THREE from '../vendor/three.module.min.js';
+import { Game } from './world.js';
+import { Car } from './car.js';
+import { TrafficManager } from './traffic.js';
+import { RideManager } from './rides.js';
+import { setupUIExtensions } from './ui.js';
+import { initCassette } from './sfx.js';
+import { ROUTES } from './data.js';
+
+// حالة اللعبة العامة
+export const gameState = {
+  money: 0,
+  day: 1,
+  shiftTime: 360,
+  currentRoute: 'geish',
+  carColor: 0xffffff,
+  carId: 'taxi_shahin',
+  inShift: false
+};
+
+// تهيئة محرك اللعبة والعالم
+const canvas = document.getElementById('gl');
+const game = new Game(canvas);
+const car = new Car(game.scene);
+const traffic = new TrafficManager(game.scene);
+const rides = new RideManager(game.scene, car);
+
+// بدء الوردية بالخط المختار
+export function startShift(routeId = 'geish') {
+  gameState.currentRoute = routeId;
+  gameState.inShift = true;
+
+  // إخفاء القوائم وإظهار شاشة اللعب
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('hud')?.classList.remove('hidden');
+
+  // إظهار أزرار اللمس للموبايل
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    document.getElementById('touch')?.classList.remove('hidden');
+  }
+
+  // تحديث اسم الخط في الـ HUD
+  const route = ROUTES[routeId] || ROUTES.geish;
+  const routeTag = document.getElementById('hud-route-tag');
+  if (routeTag) routeTag.textContent = `📍 ${route.name}`;
+
+  // تفعيل عالم اللعبة وحركة المرور والركاب للخط المختار
+  if (typeof game.resetForRoute === 'function') {
+    game.resetForRoute(routeId);
+  }
+}
+
+// حلقة اللعبة الأساسية (Game Loop)
+let lastTime = performance.now();
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.min((now - lastTime) / 1000, 0.1);
+  lastTime = now;
+
+  if (gameState.inShift) {
+    car.update(dt);
+    game.update(dt, car.position);
+    traffic.update(dt, car.position);
+    rides.update(dt, car.position);
+  }
+
+  game.render(car);
+}
+
+// تشغيل الواجهات الجديدة والكاسيت
+window.addEventListener('DOMContentLoaded', () => {
+  if (typeof initCassette === 'function') {
+    initCassette();
+  }
+  if (typeof setupUIExtensions === 'function') {
+    setupUIExtensions(gameState, (selectedRoute) => {
+      startShift(selectedRoute);
+    });
+  }
+});
+
+// بدء الحلقة
+requestAnimationFrame(loop);دقائق
   currentRoute: 'geish',
   carColor: 0xffffff,
   carId: 'taxi_shahin',
