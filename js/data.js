@@ -101,3 +101,19 @@ export const PLAYLIST = [
   { title: "مهرجان على الكورنيش", src: "audio/music/track2.mp3" },
   { title: "شعبي روقان طريق البحر", src: "audio/music/track3.mp3" }
 ];
+// دوال الحسابات الفيزيائية والحركة التي يحتاجها المحرك
+export function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+
+export function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+export function rand(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+export function randChoice(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
