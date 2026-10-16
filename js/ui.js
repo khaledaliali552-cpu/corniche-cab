@@ -1,69 +1,97 @@
-import { ROUTES } from './data.js';
+// تفعيل شاشة الخطوط الإسكندرانية ومشاركة الواتساب والكاسيت
+setTimeout(() => {
+  const mStart = document.getElementById('m-start');
+  const screenMenu = document.getElementById('screen-menu');
+  const screenRoutes = document.getElementById('screen-routes');
+  const rConfirm = document.getElementById('r-confirm');
+  const rBack = document.getElementById('r-back');
 
-export function setupUIExtensions(gameState, onStartShift) {
-  let selectedRoute = 'geish';
-
-  // شاشة الطرق
-  document.getElementById('m-start')?.addEventListener('click', () => {
-    document.getElementById('screen-menu')?.classList.add('hidden');
-    document.getElementById('screen-routes')?.classList.remove('hidden');
-  });
-
-  document.getElementById('r-back')?.addEventListener('click', () => {
-    document.getElementById('screen-routes')?.classList.add('hidden');
-    document.getElementById('screen-menu')?.classList.remove('hidden');
-  });
-
-  document.querySelectorAll('.route-card').forEach(card => {
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.route-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedRoute = card.dataset.route;
+  if (mStart && screenRoutes) {
+    mStart.addEventListener('click', (e) => {
+      e.stopImmediatePropagation();
+      screenMenu.classList.add('hidden');
+      screenRoutes.classList.remove('hidden');
     });
-  });
 
-  document.getElementById('r-confirm')?.addEventListener('click', () => {
-    document.getElementById('screen-routes')?.classList.add('hidden');
-    const route = ROUTES[selectedRoute];
-    const tag = document.getElementById('hud-route-tag');
-    if (tag) tag.textContent = `📍 ${route.name}`;
-    onStartShift(selectedRoute);
-  });
+    rBack?.addEventListener('click', () => {
+      screenRoutes.classList.add('hidden');
+      screenMenu.classList.remove('hidden');
+    });
+
+    document.querySelectorAll('.route-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.route-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const price = card.querySelector('.route-price')?.textContent;
+        const tag = document.getElementById('hud-route-tag');
+        if (tag) tag.textContent = `📍 ${card.querySelector('.route-header span').textContent}`;
+      });
+    });
+
+    rConfirm?.addEventListener('click', () => {
+      screenRoutes.classList.add('hidden');
+      // تشغيل الوردية الأصلية
+      document.getElementById('hud')?.classList.remove('hidden');
+      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    });
+  }
 
   // مشاركة الواتساب
   document.getElementById('m-share')?.addEventListener('click', () => {
-    document.getElementById('screen-menu')?.classList.add('hidden');
+    screenMenu.classList.add('hidden');
     document.getElementById('screen-share')?.classList.remove('hidden');
   });
 
   document.getElementById('share-back')?.addEventListener('click', () => {
     document.getElementById('screen-share')?.classList.add('hidden');
-    document.getElementById('screen-menu')?.classList.remove('hidden');
+    screenMenu.classList.remove('hidden');
   });
 
   document.getElementById('btn-send-whatsapp')?.addEventListener('click', () => {
-    const refCode = "ALEX-" + Math.floor(1000 + Math.random() * 9000);
-    const gameUrl = `https://khaledaliali552-cpu.github.io/corniche-cab/?ref=${refCode}`;
-    const text = encodeURIComponent(`تعالى العب معايا لعبة أجرة الكورنيش في إسكندرية وسوق ميكروباص وتاكسي! 🚖 ادخل من هنا:\n${gameUrl}`);
+    const text = encodeURIComponent("تعالى العب معايا أجرة الكورنيش في إسكندرية! 🚖🔥\nhttps://khaledaliali552-cpu.github.io/corniche-cab/");
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-
-    gameState.money = (gameState.money || 0) + 500;
-    const hudMoney = document.querySelector('#hud-money b');
-    if (hudMoney) hudMoney.textContent = gameState.money;
-    alert("تسلم يا أسطى! نزل في رصيدك 500 جنيه عشان شاركت مع أصحابك.");
+    alert("مبروك! نزل في رصيدك 500 جنيه مكافأة 💰");
   });
 
-  // اختيار الدهان
-  document.querySelectorAll('.color-swatch').forEach(swatch => {
-    swatch.addEventListener('click', () => {
-      const colorVal = parseInt(swatch.dataset.color);
-      if (gameState.money >= 200) {
-        gameState.money -= 200;
-        gameState.carColor = colorVal;
-        alert("مبروك رشينا العربية دوكو جديد!");
+  // مشغل الكاسيت
+  const audio = document.getElementById('audio-player');
+  const btnToggle = document.getElementById('btn-music-toggle');
+  const title = document.getElementById('music-title');
+  const tracks = [
+    { name: "مهرجان إسكندراني 1", url: "audio/music/track1.mp3" },
+    { name: "مهرجان على الكورنيش", url: "audio/music/track2.mp3" },
+    { name: "شعبي روقان طريق البحر", url: "audio/music/track3.mp3" }
+  ];
+  let tIdx = 0;
+
+  if (audio && btnToggle) {
+    audio.src = tracks[0].url;
+    if (title) title.textContent = tracks[0].name;
+
+    btnToggle.onclick = () => {
+      if (audio.paused) {
+        audio.play().catch(() => {});
+        btnToggle.textContent = '⏸';
       } else {
-        alert("معكش فلوس كفاية للدهان (مطلوب 200 ج.م)");
+        audio.pause();
+        btnToggle.textContent = '▶';
       }
+    };
+
+    document.getElementById('btn-music-next')?.addEventListener('click', () => {
+      tIdx = (tIdx + 1) % tracks.length;
+      audio.src = tracks[tIdx].url;
+      if (title) title.textContent = tracks[tIdx].name;
+      audio.play().catch(() => {});
+      btnToggle.textContent = '⏸';
     });
-  });
-}
+
+    document.getElementById('btn-music-prev')?.addEventListener('click', () => {
+      tIdx = (tIdx - 1 + tracks.length) % tracks.length;
+      audio.src = tracks[tIdx].url;
+      if (title) title.textContent = tracks[tIdx].name;
+      audio.play().catch(() => {});
+      btnToggle.textContent = '⏸';
+    });
+  }
+}, 300);
