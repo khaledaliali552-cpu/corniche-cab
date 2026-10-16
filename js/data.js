@@ -1,4 +1,33 @@
-// بيانات خطوط السير والأسعار الإسكندرانية
+// دوال الحسابات والفيزياء والاختيار العشوائي للمحرك وحركة المرور
+export function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+
+export function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+export function rand(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+export function randChoice(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+export function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// ثوابت الطريق والحركة
+export const ROAD = {
+  width: 14,
+  lanes: 4,
+  segmentLength: 20,
+  drawDistance: 300
+};
+
+// خطوط السير والأسعار الإسكندرانية
 export const ROUTES = {
   geish: {
     id: 'geish',
@@ -76,7 +105,7 @@ export const ROUTES = {
   }
 };
 
-// العربيات المتاحة في الجراج والمطابقة للصورة
+// قائمة العربيات
 export const CARS = [
   { id: 'taxi_shahin', name: 'شاهين تاكسي إسكندرية', price: 0, speed: 22, accel: 14, handling: 1.0 },
   { id: 'suzuki_van', name: 'توناية سوزوكي', price: 1200, speed: 24, accel: 16, handling: 1.15 },
@@ -101,19 +130,3 @@ export const PLAYLIST = [
   { title: "مهرجان على الكورنيش", src: "audio/music/track2.mp3" },
   { title: "شعبي روقان طريق البحر", src: "audio/music/track3.mp3" }
 ];
-// دوال الحسابات الفيزيائية والحركة التي يحتاجها المحرك
-export function clamp(v, min, max) {
-  return Math.max(min, Math.min(max, v));
-}
-
-export function lerp(a, b, t) {
-  return a + (b - a) * t;
-}
-
-export function rand(min, max) {
-  return min + Math.random() * (max - min);
-}
-
-export function randChoice(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
