@@ -1,9 +1,8 @@
-import { ROUTES, CARS, CAR_COLORS } from './data.js';
+import { ROUTES, CARS } from './data.js';
 
 export function setupUI(app) {
   let selectedRoute = 'geish';
 
-  // شاشات القوائم
   const screenMenu = document.getElementById('screen-menu');
   const screenRoutes = document.getElementById('screen-routes');
   const screenGarage = document.getElementById('screen-garage');
@@ -76,7 +75,7 @@ export function setupUI(app) {
     });
   }
 
-  // رش دوكو ودهانات
+  // رش دوكو
   document.querySelectorAll('.color-swatch').forEach(swatch => {
     swatch.addEventListener('click', () => {
       const hex = parseInt(swatch.dataset.color);
