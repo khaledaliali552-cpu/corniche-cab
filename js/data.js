@@ -1,4 +1,4 @@
-// دوال الحسابات والفيزياء والاختيار العشوائي للمحرك وحركة المرور
+// دوال الحسابات والفيزياء والاختيار
 export function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
 }
@@ -19,7 +19,7 @@ export function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// ثوابت الطريق والحركة
+// ثوابت الطريق
 export const ROAD = {
   width: 14,
   lanes: 4,
@@ -32,7 +32,6 @@ export const ROUTES = {
   geish: {
     id: 'geish',
     name: 'طريق الجيش (طريق البحر - طريق البشاوات)',
-    subtitle: 'بحر وهوا نظيف وزباين بتدفع بسخاء',
     fare: 150,
     speedLimit: 70,
     stops: ['القلعة', 'بحري', 'محطة الرمل', 'الشاطبي', 'سبورتنج بحر', 'ستانلي', 'سيدي بشر', 'ميامي كورنيش', 'المنتزه'],
@@ -45,7 +44,6 @@ export const ROUTES = {
   abuqir: {
     id: 'abuqir',
     name: 'طريق أبوقير',
-    subtitle: 'أطول وأزحم خط في إسكندرية',
     fare: 70,
     speedLimit: 60,
     stops: [
@@ -64,7 +62,6 @@ export const ROUTES = {
   mahmoudia: {
     id: 'mahmoudia',
     name: 'شريان المحمودية',
-    subtitle: 'شريان الأمل والسرعة والمحطات الشعبية',
     fare: 60,
     speedLimit: 80,
     stops: [
@@ -81,7 +78,6 @@ export const ROUTES = {
   highway: {
     id: 'highway',
     name: 'الطريق السريع',
-    subtitle: 'عند كارفور والحديقة الدولية',
     fare: 50,
     speedLimit: 90,
     stops: ['كارفور', 'الحديقة الدولية', 'محرم بك الجديدة'],
@@ -93,7 +89,6 @@ export const ROUTES = {
   desert: {
     id: 'desert',
     name: 'إسكندرية الصحراوي (طريق موظفين)',
-    subtitle: 'رخيصة عشان غلابة',
     fare: 40,
     speedLimit: 100,
     stops: ['العامرية', 'عبد القادر', 'مرغم', 'الشركات', 'المنطقة الحرة'],
@@ -105,16 +100,15 @@ export const ROUTES = {
   }
 };
 
-// قائمة العربيات
+// العربيات المطابقة للصورة
 export const CARS = [
-  { id: 'taxi_shahin', name: 'شاهين تاكسي إسكندرية', price: 0, speed: 22, accel: 14, handling: 1.0 },
+  { id: 'taxi_132', name: 'شاهين تاكسي إسكندرية', price: 0, speed: 22, accel: 14, handling: 1.0 },
   { id: 'suzuki_van', name: 'توناية سوزوكي', price: 1200, speed: 24, accel: 16, handling: 1.15 },
   { id: 'toktok', name: 'توكتوك إسكندراني', price: 800, speed: 18, accel: 18, handling: 1.3 },
   { id: 'microbus', name: 'ميكروباص تويوتا سقف عالي', price: 3000, speed: 26, accel: 15, handling: 1.05 },
   { id: 'dabbaba', name: 'عربية دبابة نقل', price: 4500, speed: 25, accel: 13, handling: 0.95 }
 ];
 
-// ألوان الدوكو
 export const CAR_COLORS = [
   { name: 'أبيض تويوتا', hex: 0xffffff, price: 0 },
   { name: 'أسود ملكي', hex: 0x111111, price: 200 },
@@ -124,7 +118,6 @@ export const CAR_COLORS = [
   { name: 'رمادي توناية', hex: 0x7f8c8d, price: 200 }
 ];
 
-// قائمة الأغاني
 export const PLAYLIST = [
   { title: "مهرجان إسكندراني 1", src: "audio/music/track1.mp3" },
   { title: "مهرجان على الكورنيش", src: "audio/music/track2.mp3" },
